@@ -118,8 +118,8 @@ public class WebhookEventListener implements Listener {
             if (!registeredEvents.contains(WebhookEvent.EventType.PlayerChat)) {
                 continue;
             }
-
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(eventModel, webhook.getListenerUrl()));
+            DiscordJSON data=new DiscordJSON( eventModel.getPlayerName(),eventModel.getMessage(),"https://i.pinimg.com/originals/32/34/eb/3234ebe4bf8fd04402c540d912ee8fdd.jpg");
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(data, webhook.getListenerUrl()));
         }
     }
 
@@ -141,8 +141,8 @@ public class WebhookEventListener implements Listener {
             if (!registeredEvents.contains(WebhookEvent.EventType.PlayerDeath)) {
                 continue;
             }
-
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(eventModel, webhook.getListenerUrl()));
+            DiscordJSON data=new DiscordJSON("","RIP\n**"+ eventModel.getPlayer().getDisplayName()+"** "+eventModel.getDeathMessage().split(" ",2)[1],"");
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(data, webhook.getListenerUrl()));
         }
     }
 
@@ -161,8 +161,8 @@ public class WebhookEventListener implements Listener {
             if (!registeredEvents.contains(WebhookEvent.EventType.PlayerJoin)) {
                 continue;
             }
-
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(eventModel, webhook.getListenerUrl()));
+            DiscordJSON data =new DiscordJSON("","**"+eventModel.getPlayer().getDisplayName()+"** has joined the game :smile:","");
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(data, webhook.getListenerUrl()));
         }
     }
 
@@ -181,8 +181,8 @@ public class WebhookEventListener implements Listener {
             if (!registeredEvents.contains(WebhookEvent.EventType.PlayerQuit)) {
                 continue;
             }
-
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(eventModel, webhook.getListenerUrl()));
+            DiscordJSON data =new DiscordJSON("","**"+eventModel.getPlayer().getDisplayName()+"** has left the game :cry:","");
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(data, webhook.getListenerUrl()));
         }
     }
 
@@ -201,8 +201,8 @@ public class WebhookEventListener implements Listener {
             if (!registeredEvents.contains(WebhookEvent.EventType.PlayerKick)) {
                 continue;
             }
-
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(eventModel, webhook.getListenerUrl()));
+            DiscordJSON data=new DiscordJSON("","**"+eventModel.getPlayer().getDisplayName()+"** got kicked put by admin","");
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new PostRequestTask(data, webhook.getListenerUrl()));
         }
     }
 
@@ -249,11 +249,11 @@ public class WebhookEventListener implements Listener {
         }
     }
     private static class PostRequestTask implements Runnable {
-        private final WebhookEvent webhookEvent;
+        private final DiscordJSON data;
         private final String listener;
 
-        public PostRequestTask(WebhookEvent webhookEvent, String listener) {
-            this.webhookEvent = webhookEvent;
+        public PostRequestTask(DiscordJSON data, String listener) {
+            this.data = data;
             this.listener = listener;
         }
 
@@ -261,7 +261,7 @@ public class WebhookEventListener implements Listener {
         public void run() {
             try {
                 Gson gson = new Gson();
-                String jsonContent = gson.toJson(webhookEvent);
+                String jsonContent = gson.toJson(data);
                 byte[] output = jsonContent.getBytes(StandardCharsets.UTF_8);
 
                 URL url = new URL(listener);
